@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.paytrack.app.SmsTransferParserTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-09-15T15:12:27.996Z" hostname="MSI" time="0.065">
+  <properties/>
+  <testcase name="testTouchNGoEwallet" classname="com.paytrack.app.SmsTransferParserTest" time="0.045"/>
+  <testcase name="testCimbDuitNowMerchantPayment" classname="com.paytrack.app.SmsTransferParserTest" time="0.004"/>
+  <testcase name="testOtpRejection" classname="com.paytrack.app.SmsTransferParserTest" time="0.002"/>
+  <testcase name="testAmountWithCommas" classname="com.paytrack.app.SmsTransferParserTest" time="0.0"/>
+  <testcase name="testCimbCredit" classname="com.paytrack.app.SmsTransferParserTest" time="0.0"/>
+  <testcase name="testBankIslamTransfer" classname="com.paytrack.app.SmsTransferParserTest" time="0.001"/>
+  <testcase name="testInternationalUsdDeposit" classname="com.paytrack.app.SmsTransferParserTest" time="0.001"/>
+  <testcase name="testDebitRejectionPayment" classname="com.paytrack.app.SmsTransferParserTest" time="0.004"/>
+  <testcase name="testBankRakyatTransferWithRm0Header" classname="com.paytrack.app.SmsTransferParserTest" time="0.002"/>
+  <testcase name="testMaybankDuitNowCredit" classname="com.paytrack.app.SmsTransferParserTest" time="0.001"/>
+  <testcase name="testDebitRejectionSentMoney" classname="com.paytrack.app.SmsTransferParserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

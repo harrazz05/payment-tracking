@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FBFDFA</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary">#006C4C</color>
+    <color name="primary_container">#89F8C7</color>
+    <color name="secondary">#4D6357</color>
+    <string name="app_name">PayTrack</string>
+    <string name="channel_report_desc">End-of-day summary reports of received transfers</string>
+    <string name="channel_report_name">Daily Reports</string>
+    <string name="channel_transfer_desc">Notifications when money is transferred to you</string>
+    <string name="channel_transfer_name">Transfer Alerts</string>
+    <style name="Theme.PayTrack" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#006C4C</item>
+        <item name="android:navigationBarColor">#FBFDFA</item>
+    </style>
+</resources>

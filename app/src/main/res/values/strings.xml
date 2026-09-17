@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PayTrack</string>
+    <string name="channel_transfer_name">Transfer Alerts</string>
+    <string name="channel_transfer_desc">Notifications when money is transferred to you</string>
+    <string name="channel_report_name">Daily Reports</string>
+    <string name="channel_report_desc">End-of-day summary reports of received transfers</string>
+</resources>

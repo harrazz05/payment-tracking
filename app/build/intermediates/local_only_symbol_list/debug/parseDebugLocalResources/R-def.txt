@@ -1,0 +1,15 @@
+R_DEF: Internal format may change without notice
+local
+color background
+color on_primary
+color primary
+color primary_container
+color secondary
+string app_name
+string channel_report_desc
+string channel_report_name
+string channel_transfer_desc
+string channel_transfer_name
+style Theme.PayTrack
+xml backup_rules
+xml data_extraction_rules
