@@ -31,11 +31,16 @@ object SmsInboxScanner {
             Telephony.Sms.DATE
         )
 
+        // Only scan messages from the past 24 hours
+        val twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000L)
+        val selection = "${Telephony.Sms.DATE} >= ?"
+        val selectionArgs = arrayOf(twentyFourHoursAgo.toString())
+
         val cursor = contentResolver.query(
             uri,
             projection,
-            null,
-            null,
+            selection,
+            selectionArgs,
             Telephony.Sms.DATE + " DESC"
         ) ?: return@withContext ScanResult(0, 0, 0, 0.0)
 
@@ -65,8 +70,11 @@ object SmsInboxScanner {
                     transfersFound++
                     totalAmount += parsed.amount
 
-                    // Check if already in database
-                    if (!dao.existsByMessageAndTimestamp(body, dateMillis)) {
+                    // Check for duplication by Transaction ID or message & timestamp
+                    val txnId = parsed.reference
+                    val isDuplicate = dao.isDuplicateTransaction(body, dateMillis, txnId)
+
+                    if (!isDuplicate) {
                         val dateObj = Date(dateMillis)
                         val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dateObj)
                         val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(dateObj)
@@ -80,6 +88,7 @@ object SmsInboxScanner {
                                 dateString = dateStr,
                                 timeString = timeStr,
                                 rawMessage = body,
+                                transactionId = txnId,
                                 notes = parsed.payerName ?: parsed.reference
                             )
                         )

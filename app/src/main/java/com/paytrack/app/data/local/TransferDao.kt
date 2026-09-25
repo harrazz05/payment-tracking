@@ -30,6 +30,12 @@ interface TransferDao {
     @Query("SELECT * FROM transfer_transactions WHERE dateString = :date ORDER BY timestamp DESC")
     suspend fun getTransactionsByDateSync(date: String): List<TransferTransaction>
 
+    @Query("SELECT * FROM transfer_transactions WHERE dateString >= :startDate AND dateString <= :endDate ORDER BY timestamp DESC")
+    fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransferTransaction>>
+
+    @Query("SELECT * FROM transfer_transactions WHERE dateString >= :startDate AND dateString <= :endDate ORDER BY timestamp DESC")
+    suspend fun getTransactionsByDateRangeSync(startDate: String, endDate: String): List<TransferTransaction>
+
     @Query("SELECT COALESCE(SUM(amount), 0.0) FROM transfer_transactions WHERE dateString = :date")
     fun getDailyTotal(date: String): Flow<Double>
 
@@ -49,6 +55,12 @@ interface TransferDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM transfer_transactions WHERE rawMessage = :rawMessage AND timestamp = :timestamp LIMIT 1)")
     suspend fun existsByMessageAndTimestamp(rawMessage: String, timestamp: Long): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM transfer_transactions WHERE transactionId = :transactionId AND transactionId IS NOT NULL AND transactionId != '' LIMIT 1)")
+    suspend fun existsByTransactionId(transactionId: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM transfer_transactions WHERE (rawMessage = :rawMessage AND timestamp = :timestamp) OR (transactionId = :transactionId AND transactionId IS NOT NULL AND transactionId != '') LIMIT 1)")
+    suspend fun isDuplicateTransaction(rawMessage: String, timestamp: Long, transactionId: String?): Boolean
 
     @Query("DELETE FROM transfer_transactions")
     suspend fun clearAll()

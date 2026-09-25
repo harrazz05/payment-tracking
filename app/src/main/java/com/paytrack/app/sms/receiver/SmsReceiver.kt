@@ -52,8 +52,11 @@ class SmsReceiver : BroadcastReceiver() {
                     val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now)
                     val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(now)
 
-                    // Avoid duplicate insertion
-                    if (!dao.existsByMessageAndTimestamp(fullBody, timestamp)) {
+                    // Avoid duplicate insertion by Transaction ID or message & timestamp
+                    val txnId = parsed.reference
+                    val isDuplicate = dao.isDuplicateTransaction(fullBody, timestamp, txnId)
+
+                    if (!isDuplicate) {
                         val transaction = TransferTransaction(
                             sender = parsed.senderOrBank,
                             amount = parsed.amount,
@@ -62,6 +65,7 @@ class SmsReceiver : BroadcastReceiver() {
                             dateString = dateStr,
                             timeString = timeStr,
                             rawMessage = fullBody,
+                            transactionId = txnId,
                             notes = parsed.payerName ?: parsed.reference,
                         )
                         dao.insert(transaction)

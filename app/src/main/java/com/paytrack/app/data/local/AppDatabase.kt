@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.paytrack.app.data.model.TransferTransaction
 
-@Database(entities = [TransferTransaction::class], version = 1, exportSchema = false)
+@Database(entities = [TransferTransaction::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transferDao(): TransferDao

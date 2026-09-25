@@ -171,6 +171,8 @@ layout notification_template_custom_big
 layout notification_template_icon_group
 layout notification_template_part_chronometer
 layout notification_template_part_time
+mipmap ic_launcher
+mipmap ic_launcher_round
 string androidx_startup
 string app_name
 string call_notification_answer_action
@@ -279,3 +281,4 @@ styleable GradientColor android_startColor android_endColor android_type android
 styleable GradientColorItem android_color android_offset
 xml backup_rules
 xml data_extraction_rules
+xml file_paths

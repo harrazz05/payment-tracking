@@ -29,6 +29,14 @@ class TransferRepository(private val dao: TransferDao) {
         return dao.getTransactionsByDateSync(dateString)
     }
 
+    fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransferTransaction>> {
+        return dao.getTransactionsByDateRange(startDate, endDate)
+    }
+
+    suspend fun getTransactionsByDateRangeSync(startDate: String, endDate: String): List<TransferTransaction> {
+        return dao.getTransactionsByDateRangeSync(startDate, endDate)
+    }
+
     fun getTodayTotal(): Flow<Double> {
         return dao.getDailyTotal(getTodayDateString())
     }
@@ -51,6 +59,14 @@ class TransferRepository(private val dao: TransferDao) {
 
     suspend fun existsMessage(rawMessage: String, timestamp: Long): Boolean {
         return dao.existsByMessageAndTimestamp(rawMessage, timestamp)
+    }
+
+    suspend fun existsTransactionId(transactionId: String): Boolean {
+        return dao.existsByTransactionId(transactionId)
+    }
+
+    suspend fun isDuplicateTransaction(rawMessage: String, timestamp: Long, transactionId: String?): Boolean {
+        return dao.isDuplicateTransaction(rawMessage, timestamp, transactionId)
     }
 
     suspend fun clearAll() {

@@ -5,6 +5,8 @@ color on_primary
 color primary
 color primary_container
 color secondary
+mipmap ic_launcher
+mipmap ic_launcher_round
 string app_name
 string channel_report_desc
 string channel_report_name
@@ -13,3 +15,4 @@ string channel_transfer_name
 style Theme.PayTrack
 xml backup_rules
 xml data_extraction_rules
+xml file_paths
