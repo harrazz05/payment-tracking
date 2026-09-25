@@ -31,12 +31,12 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `transfer_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sender` TEXT NOT NULL, `amount` REAL NOT NULL, `currency` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `dateString` TEXT NOT NULL, `timeString` TEXT NOT NULL, `rawMessage` TEXT NOT NULL, `notes` TEXT, `isSimulated` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `transfer_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sender` TEXT NOT NULL, `amount` REAL NOT NULL, `currency` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `dateString` TEXT NOT NULL, `timeString` TEXT NOT NULL, `rawMessage` TEXT NOT NULL, `transactionId` TEXT, `notes` TEXT, `isSimulated` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bca2e7b2ea8a136abf66ff5ef1d71e8a')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd46593e94ad9fb389a2ca9bbf7c6bde7')");
       }
 
       @Override
@@ -85,7 +85,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsTransferTransactions = new HashMap<String, TableInfo.Column>(10);
+        final HashMap<String, TableInfo.Column> _columnsTransferTransactions = new HashMap<String, TableInfo.Column>(11);
         _columnsTransferTransactions.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("sender", new TableInfo.Column("sender", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("amount", new TableInfo.Column("amount", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -94,6 +94,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsTransferTransactions.put("dateString", new TableInfo.Column("dateString", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("timeString", new TableInfo.Column("timeString", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("rawMessage", new TableInfo.Column("rawMessage", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransferTransactions.put("transactionId", new TableInfo.Column("transactionId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("notes", new TableInfo.Column("notes", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransferTransactions.put("isSimulated", new TableInfo.Column("isSimulated", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysTransferTransactions = new HashSet<TableInfo.ForeignKey>(0);
@@ -107,7 +108,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "bca2e7b2ea8a136abf66ff5ef1d71e8a", "9b17775fed9d0f5ce2e043ff9589e2cf");
+    }, "d46593e94ad9fb389a2ca9bbf7c6bde7", "c914d935d82c3f34e45aa9b5cb72ae91");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

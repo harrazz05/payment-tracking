@@ -50,7 +50,7 @@ public final class TransferDao_Impl implements TransferDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR IGNORE INTO `transfer_transactions` (`id`,`sender`,`amount`,`currency`,`timestamp`,`dateString`,`timeString`,`rawMessage`,`notes`,`isSimulated`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR IGNORE INTO `transfer_transactions` (`id`,`sender`,`amount`,`currency`,`timestamp`,`dateString`,`timeString`,`rawMessage`,`transactionId`,`notes`,`isSimulated`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -64,13 +64,18 @@ public final class TransferDao_Impl implements TransferDao {
         statement.bindString(6, entity.getDateString());
         statement.bindString(7, entity.getTimeString());
         statement.bindString(8, entity.getRawMessage());
-        if (entity.getNotes() == null) {
+        if (entity.getTransactionId() == null) {
           statement.bindNull(9);
         } else {
-          statement.bindString(9, entity.getNotes());
+          statement.bindString(9, entity.getTransactionId());
+        }
+        if (entity.getNotes() == null) {
+          statement.bindNull(10);
+        } else {
+          statement.bindString(10, entity.getNotes());
         }
         final int _tmp = entity.isSimulated() ? 1 : 0;
-        statement.bindLong(10, _tmp);
+        statement.bindLong(11, _tmp);
       }
     };
     this.__deletionAdapterOfTransferTransaction = new EntityDeletionOrUpdateAdapter<TransferTransaction>(__db) {
@@ -194,6 +199,7 @@ public final class TransferDao_Impl implements TransferDao {
           final int _cursorIndexOfDateString = CursorUtil.getColumnIndexOrThrow(_cursor, "dateString");
           final int _cursorIndexOfTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "timeString");
           final int _cursorIndexOfRawMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "rawMessage");
+          final int _cursorIndexOfTransactionId = CursorUtil.getColumnIndexOrThrow(_cursor, "transactionId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfIsSimulated = CursorUtil.getColumnIndexOrThrow(_cursor, "isSimulated");
           final List<TransferTransaction> _result = new ArrayList<TransferTransaction>(_cursor.getCount());
@@ -215,6 +221,12 @@ public final class TransferDao_Impl implements TransferDao {
             _tmpTimeString = _cursor.getString(_cursorIndexOfTimeString);
             final String _tmpRawMessage;
             _tmpRawMessage = _cursor.getString(_cursorIndexOfRawMessage);
+            final String _tmpTransactionId;
+            if (_cursor.isNull(_cursorIndexOfTransactionId)) {
+              _tmpTransactionId = null;
+            } else {
+              _tmpTransactionId = _cursor.getString(_cursorIndexOfTransactionId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -225,7 +237,7 @@ public final class TransferDao_Impl implements TransferDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsSimulated);
             _tmpIsSimulated = _tmp != 0;
-            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpNotes,_tmpIsSimulated);
+            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpTransactionId,_tmpNotes,_tmpIsSimulated);
             _result.add(_item);
           }
           return _result;
@@ -261,6 +273,7 @@ public final class TransferDao_Impl implements TransferDao {
           final int _cursorIndexOfDateString = CursorUtil.getColumnIndexOrThrow(_cursor, "dateString");
           final int _cursorIndexOfTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "timeString");
           final int _cursorIndexOfRawMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "rawMessage");
+          final int _cursorIndexOfTransactionId = CursorUtil.getColumnIndexOrThrow(_cursor, "transactionId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfIsSimulated = CursorUtil.getColumnIndexOrThrow(_cursor, "isSimulated");
           final List<TransferTransaction> _result = new ArrayList<TransferTransaction>(_cursor.getCount());
@@ -282,6 +295,12 @@ public final class TransferDao_Impl implements TransferDao {
             _tmpTimeString = _cursor.getString(_cursorIndexOfTimeString);
             final String _tmpRawMessage;
             _tmpRawMessage = _cursor.getString(_cursorIndexOfRawMessage);
+            final String _tmpTransactionId;
+            if (_cursor.isNull(_cursorIndexOfTransactionId)) {
+              _tmpTransactionId = null;
+            } else {
+              _tmpTransactionId = _cursor.getString(_cursorIndexOfTransactionId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -292,7 +311,7 @@ public final class TransferDao_Impl implements TransferDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsSimulated);
             _tmpIsSimulated = _tmp != 0;
-            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpNotes,_tmpIsSimulated);
+            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpTransactionId,_tmpNotes,_tmpIsSimulated);
             _result.add(_item);
           }
           return _result;
@@ -330,6 +349,7 @@ public final class TransferDao_Impl implements TransferDao {
           final int _cursorIndexOfDateString = CursorUtil.getColumnIndexOrThrow(_cursor, "dateString");
           final int _cursorIndexOfTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "timeString");
           final int _cursorIndexOfRawMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "rawMessage");
+          final int _cursorIndexOfTransactionId = CursorUtil.getColumnIndexOrThrow(_cursor, "transactionId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfIsSimulated = CursorUtil.getColumnIndexOrThrow(_cursor, "isSimulated");
           final List<TransferTransaction> _result = new ArrayList<TransferTransaction>(_cursor.getCount());
@@ -351,6 +371,12 @@ public final class TransferDao_Impl implements TransferDao {
             _tmpTimeString = _cursor.getString(_cursorIndexOfTimeString);
             final String _tmpRawMessage;
             _tmpRawMessage = _cursor.getString(_cursorIndexOfRawMessage);
+            final String _tmpTransactionId;
+            if (_cursor.isNull(_cursorIndexOfTransactionId)) {
+              _tmpTransactionId = null;
+            } else {
+              _tmpTransactionId = _cursor.getString(_cursorIndexOfTransactionId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -361,7 +387,158 @@ public final class TransferDao_Impl implements TransferDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsSimulated);
             _tmpIsSimulated = _tmp != 0;
-            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpNotes,_tmpIsSimulated);
+            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpTransactionId,_tmpNotes,_tmpIsSimulated);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Flow<List<TransferTransaction>> getTransactionsByDateRange(final String startDate,
+      final String endDate) {
+    final String _sql = "SELECT * FROM transfer_transactions WHERE dateString >= ? AND dateString <= ? ORDER BY timestamp DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, startDate);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, endDate);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"transfer_transactions"}, new Callable<List<TransferTransaction>>() {
+      @Override
+      @NonNull
+      public List<TransferTransaction> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfSender = CursorUtil.getColumnIndexOrThrow(_cursor, "sender");
+          final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
+          final int _cursorIndexOfCurrency = CursorUtil.getColumnIndexOrThrow(_cursor, "currency");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfDateString = CursorUtil.getColumnIndexOrThrow(_cursor, "dateString");
+          final int _cursorIndexOfTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "timeString");
+          final int _cursorIndexOfRawMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "rawMessage");
+          final int _cursorIndexOfTransactionId = CursorUtil.getColumnIndexOrThrow(_cursor, "transactionId");
+          final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
+          final int _cursorIndexOfIsSimulated = CursorUtil.getColumnIndexOrThrow(_cursor, "isSimulated");
+          final List<TransferTransaction> _result = new ArrayList<TransferTransaction>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final TransferTransaction _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpSender;
+            _tmpSender = _cursor.getString(_cursorIndexOfSender);
+            final double _tmpAmount;
+            _tmpAmount = _cursor.getDouble(_cursorIndexOfAmount);
+            final String _tmpCurrency;
+            _tmpCurrency = _cursor.getString(_cursorIndexOfCurrency);
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final String _tmpDateString;
+            _tmpDateString = _cursor.getString(_cursorIndexOfDateString);
+            final String _tmpTimeString;
+            _tmpTimeString = _cursor.getString(_cursorIndexOfTimeString);
+            final String _tmpRawMessage;
+            _tmpRawMessage = _cursor.getString(_cursorIndexOfRawMessage);
+            final String _tmpTransactionId;
+            if (_cursor.isNull(_cursorIndexOfTransactionId)) {
+              _tmpTransactionId = null;
+            } else {
+              _tmpTransactionId = _cursor.getString(_cursorIndexOfTransactionId);
+            }
+            final String _tmpNotes;
+            if (_cursor.isNull(_cursorIndexOfNotes)) {
+              _tmpNotes = null;
+            } else {
+              _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+            }
+            final boolean _tmpIsSimulated;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsSimulated);
+            _tmpIsSimulated = _tmp != 0;
+            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpTransactionId,_tmpNotes,_tmpIsSimulated);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Object getTransactionsByDateRangeSync(final String startDate, final String endDate,
+      final Continuation<? super List<TransferTransaction>> $completion) {
+    final String _sql = "SELECT * FROM transfer_transactions WHERE dateString >= ? AND dateString <= ? ORDER BY timestamp DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, startDate);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, endDate);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<TransferTransaction>>() {
+      @Override
+      @NonNull
+      public List<TransferTransaction> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfSender = CursorUtil.getColumnIndexOrThrow(_cursor, "sender");
+          final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
+          final int _cursorIndexOfCurrency = CursorUtil.getColumnIndexOrThrow(_cursor, "currency");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfDateString = CursorUtil.getColumnIndexOrThrow(_cursor, "dateString");
+          final int _cursorIndexOfTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "timeString");
+          final int _cursorIndexOfRawMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "rawMessage");
+          final int _cursorIndexOfTransactionId = CursorUtil.getColumnIndexOrThrow(_cursor, "transactionId");
+          final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
+          final int _cursorIndexOfIsSimulated = CursorUtil.getColumnIndexOrThrow(_cursor, "isSimulated");
+          final List<TransferTransaction> _result = new ArrayList<TransferTransaction>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final TransferTransaction _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpSender;
+            _tmpSender = _cursor.getString(_cursorIndexOfSender);
+            final double _tmpAmount;
+            _tmpAmount = _cursor.getDouble(_cursorIndexOfAmount);
+            final String _tmpCurrency;
+            _tmpCurrency = _cursor.getString(_cursorIndexOfCurrency);
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final String _tmpDateString;
+            _tmpDateString = _cursor.getString(_cursorIndexOfDateString);
+            final String _tmpTimeString;
+            _tmpTimeString = _cursor.getString(_cursorIndexOfTimeString);
+            final String _tmpRawMessage;
+            _tmpRawMessage = _cursor.getString(_cursorIndexOfRawMessage);
+            final String _tmpTransactionId;
+            if (_cursor.isNull(_cursorIndexOfTransactionId)) {
+              _tmpTransactionId = null;
+            } else {
+              _tmpTransactionId = _cursor.getString(_cursorIndexOfTransactionId);
+            }
+            final String _tmpNotes;
+            if (_cursor.isNull(_cursorIndexOfNotes)) {
+              _tmpNotes = null;
+            } else {
+              _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+            }
+            final boolean _tmpIsSimulated;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsSimulated);
+            _tmpIsSimulated = _tmp != 0;
+            _item = new TransferTransaction(_tmpId,_tmpSender,_tmpAmount,_tmpCurrency,_tmpTimestamp,_tmpDateString,_tmpTimeString,_tmpRawMessage,_tmpTransactionId,_tmpNotes,_tmpIsSimulated);
             _result.add(_item);
           }
           return _result;
@@ -497,6 +674,76 @@ public final class TransferDao_Impl implements TransferDao {
     _statement.bindString(_argIndex, rawMessage);
     _argIndex = 2;
     _statement.bindLong(_argIndex, timestamp);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Boolean>() {
+      @Override
+      @NonNull
+      public Boolean call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Boolean _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmp;
+            _tmp = _cursor.getInt(0);
+            _result = _tmp != 0;
+          } else {
+            _result = false;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object existsByTransactionId(final String transactionId,
+      final Continuation<? super Boolean> $completion) {
+    final String _sql = "SELECT EXISTS(SELECT 1 FROM transfer_transactions WHERE transactionId = ? AND transactionId IS NOT NULL AND transactionId != '' LIMIT 1)";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, transactionId);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Boolean>() {
+      @Override
+      @NonNull
+      public Boolean call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Boolean _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmp;
+            _tmp = _cursor.getInt(0);
+            _result = _tmp != 0;
+          } else {
+            _result = false;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object isDuplicateTransaction(final String rawMessage, final long timestamp,
+      final String transactionId, final Continuation<? super Boolean> $completion) {
+    final String _sql = "SELECT EXISTS(SELECT 1 FROM transfer_transactions WHERE (rawMessage = ? AND timestamp = ?) OR (transactionId = ? AND transactionId IS NOT NULL AND transactionId != '') LIMIT 1)";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 3);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, rawMessage);
+    _argIndex = 2;
+    _statement.bindLong(_argIndex, timestamp);
+    _argIndex = 3;
+    if (transactionId == null) {
+      _statement.bindNull(_argIndex);
+    } else {
+      _statement.bindString(_argIndex, transactionId);
+    }
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Boolean>() {
       @Override

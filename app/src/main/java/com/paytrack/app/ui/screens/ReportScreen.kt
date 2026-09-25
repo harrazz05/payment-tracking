@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import com.paytrack.app.ui.theme.PositiveAmountColor
 import com.paytrack.app.ui.viewmodel.MainViewModel
-import java.util.Locale
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,35 +34,79 @@ fun ReportScreen(
     viewModel: MainViewModel
 ) {
     val context = LocalContext.current
+    val reportType by viewModel.reportType.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
-    val transactions by viewModel.selectedDateTransactions.collectAsState()
+    val customStartDate by viewModel.customStartDate.collectAsState()
+    val customEndDate by viewModel.customEndDate.collectAsState()
+    val transactions by viewModel.reportTransactions.collectAsState()
+
+    var showCustomDialog by remember { mutableStateOf(false) }
+    var tempStartDate by remember { mutableStateOf(customStartDate) }
+    var tempEndDate by remember { mutableStateOf(customEndDate) }
 
     val totalAmount = transactions.sumOf { it.amount }
     val count = transactions.size
-    val average = if (count > 0) totalAmount / count else 0.0
+
+    val periodTitle = when (reportType) {
+        MainViewModel.ReportType.DAILY -> "Daily Report ($selectedDate)"
+        MainViewModel.ReportType.WEEKLY -> "Weekly Report (Past 7 Days)"
+        MainViewModel.ReportType.MONTHLY -> "Monthly Report (Past 30 Days)"
+        MainViewModel.ReportType.CUSTOM -> "Custom Range ($customStartDate to $customEndDate)"
+    }
 
     val bankBreakdown = transactions.groupBy { it.sender }
         .mapValues { (_, txns) -> txns.sumOf { it.amount } }
 
+    fun exportAsCsv() {
+        val csvBuilder = StringBuilder()
+        csvBuilder.append("PayTrack Financial Report\n")
+        csvBuilder.append("Report Type,$periodTitle\n")
+        csvBuilder.append("Total Amount Received (RM),${String.format(Locale.getDefault(), "%.2f", totalAmount)}\n")
+        csvBuilder.append("Total Transactions,$count\n\n")
+        csvBuilder.append("Date,Time,Bank/Channel,Payer/Notes,Amount (RM)\n")
+
+        for (txn in transactions) {
+            val notesEscaped = "\"${(txn.notes ?: "").replace("\"", "\"\"")}\""
+            csvBuilder.append("${txn.dateString},${txn.timeString},\"${txn.sender}\",$notesEscaped,${String.format(Locale.getDefault(), "%.2f", txn.amount)}\n")
+        }
+
+        try {
+            val fileName = "PayTrack_Report_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.csv"
+            val file = File(context.cacheDir, fileName)
+            file.writeText(csvBuilder.toString())
+
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, "PayTrack Sheet - $periodTitle")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = Intent.createChooser(intent, "Export Sheet / Excel")
+            context.startActivity(chooser)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     fun generateReportText(): String {
         val sb = StringBuilder()
-        sb.append("📊 PAYTRACK DAILY TRANSFER REPORT\n")
+        sb.append("📊 PAYTRACK FINANCIAL REPORT\n")
         sb.append("====================================\n")
-        sb.append("Date: " + selectedDate + "\n")
-        sb.append("Total Money Received: RM " + String.format(Locale.getDefault(), "%.2f", totalAmount) + "\n")
-        sb.append("Total Transfers: " + count + "\n")
-        sb.append("Average Transfer: RM " + String.format(Locale.getDefault(), "%.2f", average) + "\n")
+        sb.append("Period: $periodTitle\n")
+        sb.append("Total Money Received: RM ${String.format(Locale.getDefault(), "%.2f", totalAmount)}\n")
+        sb.append("Total Transactions: $count\n")
         sb.append("====================================\n\n")
 
         sb.append("🏦 Breakdown by Bank / Channel:\n")
         for ((bank, amount) in bankBreakdown) {
-            sb.append("- " + bank + ": RM " + String.format(Locale.getDefault(), "%.2f", amount) + "\n")
+            sb.append("- $bank: RM ${String.format(Locale.getDefault(), "%.2f", amount)}\n")
         }
 
         sb.append("\n📝 Itemized Transactions:\n")
         for ((index, txn) in transactions.withIndex()) {
-            val payerInfo = if (!txn.notes.isNullOrBlank()) "(" + txn.notes + ")" else ""
-            sb.append((index + 1).toString() + ". [" + txn.timeString + "] " + txn.sender + " " + payerInfo + ": +RM " + String.format(Locale.getDefault(), "%.2f", txn.amount) + "\n")
+            val payerInfo = if (!txn.notes.isNullOrBlank()) "(${txn.notes})" else ""
+            sb.append("${index + 1}. [${txn.dateString} ${txn.timeString}] ${txn.sender} $payerInfo: +RM ${String.format(Locale.getDefault(), "%.2f", txn.amount)}\n")
         }
 
         sb.append("\nGenerated automatically via PayTrack Android.")
@@ -70,16 +118,16 @@ fun ReportScreen(
         val sendIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, reportText)
-            putExtra(Intent.EXTRA_SUBJECT, "Daily Transfer Report - " + selectedDate)
+            putExtra(Intent.EXTRA_SUBJECT, "PayTrack Report - $periodTitle")
             type = "text/plain"
         }
-        val shareIntent = Intent.createChooser(sendIntent, "Publish & Share Daily Report")
+        val shareIntent = Intent.createChooser(sendIntent, "Share Report")
         context.startActivity(shareIntent)
     }
 
     fun copyToClipboard() {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("Daily Transfer Report", generateReportText())
+        val clip = ClipData.newPlainText("PayTrack Report", generateReportText())
         clipboard.setPrimaryClip(clip)
         Toast.makeText(context, "Report copied to clipboard!", Toast.LENGTH_SHORT).show()
     }
@@ -87,13 +135,16 @@ fun ReportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Daily Report", fontWeight = FontWeight.Bold) },
+                title = { Text("Financial Reports", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = { exportAsCsv() }) {
+                        Icon(Icons.Default.Download, contentDescription = "Export Excel / Sheet")
+                    }
                     IconButton(onClick = { copyToClipboard() }) {
                         Icon(Icons.Default.ContentCopy, contentDescription = "Copy Report")
                     }
                     IconButton(onClick = { shareReport() }) {
-                        Icon(Icons.Default.Share, contentDescription = "Publish & Share Report")
+                        Icon(Icons.Default.Share, contentDescription = "Share Report")
                     }
                 }
             )
@@ -106,9 +157,49 @@ fun ReportScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Report Type Selector Chips
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = reportType == MainViewModel.ReportType.DAILY,
+                        onClick = { viewModel.setReportType(MainViewModel.ReportType.DAILY) },
+                        label = { Text("Daily") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = reportType == MainViewModel.ReportType.WEEKLY,
+                        onClick = { viewModel.setReportType(MainViewModel.ReportType.WEEKLY) },
+                        label = { Text("Weekly") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = reportType == MainViewModel.ReportType.MONTHLY,
+                        onClick = { viewModel.setReportType(MainViewModel.ReportType.MONTHLY) },
+                        label = { Text("Monthly") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = reportType == MainViewModel.ReportType.CUSTOM,
+                        onClick = { 
+                            tempStartDate = customStartDate
+                            tempEndDate = customEndDate
+                            showCustomDialog = true 
+                        },
+                        label = { Text("Custom") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // Summary Card
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
@@ -119,20 +210,14 @@ fun ReportScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "REPORT FOR DATE",
+                                periodTitle.uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                             )
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
-                            ) {
-                                Text(
-                                    selectedDate,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
+                            if (reportType == MainViewModel.ReportType.CUSTOM) {
+                                IconButton(onClick = { showCustomDialog = true }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.DateRange, contentDescription = "Edit Range", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                                }
                             }
                         }
 
@@ -148,7 +233,7 @@ fun ReportScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            "Total money transferred to you across " + count + " transaction(s)",
+                            "Total money received across $count transaction(s)",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
                         )
@@ -156,15 +241,30 @@ fun ReportScreen(
                 }
             }
 
+            // Export & Share Action Buttons
             item {
-                Button(
-                    onClick = { shareReport() },
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Publish / Share Report (WhatsApp, Email, etc.)")
+                    Button(
+                        onClick = { exportAsCsv() },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Download, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Export Sheet (.CSV)")
+                    }
+                    OutlinedButton(
+                        onClick = { shareReport() },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Share Summary")
+                    }
                 }
             }
 
@@ -179,7 +279,7 @@ fun ReportScreen(
             if (bankBreakdown.isEmpty()) {
                 item {
                     Text(
-                        "No transactions recorded for this date.",
+                        "No transactions found for this period.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -211,7 +311,7 @@ fun ReportScreen(
 
             item {
                 Text(
-                    "Itemized Transactions (" + count + ")",
+                    "Itemized Transactions ($count)",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -225,5 +325,52 @@ fun ReportScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+
+    // Custom Date Range Dialog (allowing up to past 90 days)
+    if (showCustomDialog) {
+        AlertDialog(
+            onDismissRequest = { showCustomDialog = false },
+            title = { Text("Custom Date Range (Up to 90 days)") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Enter start and end dates (YYYY-MM-DD):", style = MaterialTheme.typography.bodyMedium)
+                    OutlinedTextField(
+                        value = tempStartDate,
+                        onValueChange = { tempStartDate = it },
+                        label = { Text("Start Date (YYYY-MM-DD)") },
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = tempEndDate,
+                        onValueChange = { tempEndDate = it },
+                        label = { Text("End Date (YYYY-MM-DD)") },
+                        singleLine = true
+                    )
+                    Text(
+                        "Note: You can select past transactions up to 90 days ago.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (tempStartDate.isNotBlank() && tempEndDate.isNotBlank()) {
+                        viewModel.setCustomDateRange(tempStartDate, tempEndDate)
+                        showCustomDialog = false
+                    } else {
+                        Toast.makeText(context, "Please enter valid dates", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("Apply Range")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCustomDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

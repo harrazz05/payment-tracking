@@ -17,6 +17,7 @@ data class TransferTransaction(
     val dateString: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(timestamp)),
     val timeString: String = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(timestamp)),
     val rawMessage: String,
+    val transactionId: String? = null,
     val notes: String? = null,
     val isSimulated: Boolean = false
 )
